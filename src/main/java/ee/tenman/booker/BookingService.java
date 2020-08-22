@@ -37,16 +37,8 @@ public class BookingService {
     @Scheduled(cron = "00 59 17 * * ?")
     public void register() throws InterruptedException {
 
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("start-maximized"); // open Browser in maximized mode
-        options.addArguments("disable-infobars"); // disabling infobars
-        options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("--disable-gpu"); // applicable to windows os only
-        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
-        options.addArguments("--no-sandbox"); // Bypass OS security model
-
-        WebDriverManager.chromedriver().setup();
         long start = System.nanoTime();
+
         Configuration.startMaximized = true;
         Configuration.headless = true;
         Configuration.proxyEnabled = false;
