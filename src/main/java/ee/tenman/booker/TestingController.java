@@ -15,7 +15,7 @@ public class TestingController {
     }
 
     @GetMapping("/test")
-    public Map<String, Boolean> test() {
+    public Map<String, Object> test() {
         return bookingService.login();
     }
 

@@ -178,7 +178,8 @@ public class BookingService {
         log.info("Swimming activity selected");
     }
 
-    public Map<String, Boolean> login() {
+    public Map<String, Object> login() {
+        long start = System.nanoTime();
         try {
             closeWebDriver();
             open("https://better.legendonlineservices.co.uk/enterprise/account/login");
@@ -186,7 +187,7 @@ public class BookingService {
             $(By.id("login_Password")).setValue(password);
             $(By.id("login")).click();
             log.info("Login succeeded");
-            return ImmutableMap.of("loginSucceed", true);
+            return ImmutableMap.of("loginSucceed", true, "duration in seconds", duration(start, System.nanoTime()));
         } catch (Exception e) {
             log.error("Failed to login ", e);
             return ImmutableMap.of("loginSucceed", false);
