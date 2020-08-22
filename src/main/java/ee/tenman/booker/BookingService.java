@@ -36,7 +36,7 @@ public class BookingService {
     private String password;
 
     @Scheduled(cron = "00 59 17 * * ?")
-    @PostConstruct
+//    @PostConstruct
     public void register() throws InterruptedException {
 
         ChromeOptions options = new ChromeOptions();
