@@ -3,6 +3,7 @@ package ee.tenman.booker;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import com.google.common.collect.ImmutableMap;
 import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.codeborne.selenide.Condition.text;
@@ -142,6 +144,7 @@ public class BookingService {
         open("https://better.legendonlineservices.co.uk/poplar_baths/Basket/Index");
         $(By.id("agreeBookingTerms")).click();
         $(By.id("btnPayNow")).click();
+        registered = true;
         log.info("Registered");
     }
 
@@ -175,13 +178,19 @@ public class BookingService {
         log.info("Swimming activity selected");
     }
 
-    public void login() {
-        closeWebDriver();
-        open("https://better.legendonlineservices.co.uk/enterprise/account/login");
-        $(By.id("login_Email")).setValue(email);
-        $(By.id("login_Password")).setValue(password);
-        $(By.id("login")).click();
-        log.info("Login succeeded");
+    public Map<String, Boolean> login() {
+        try {
+            closeWebDriver();
+            open("https://better.legendonlineservices.co.uk/enterprise/account/login");
+            $(By.id("login_Email")).setValue(email);
+            $(By.id("login_Password")).setValue(password);
+            $(By.id("login")).click();
+            log.info("Login succeeded");
+            return ImmutableMap.of("loginSucceed", true);
+        } catch (Exception e) {
+            log.error("Failed to login ", e);
+            return ImmutableMap.of("loginSucceed", false);
+        }
     }
 
     public double duration(long start, long finish) {
