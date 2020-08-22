@@ -1,10 +1,12 @@
 package ee.tenman.booker;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.SelenideDriver;
 import com.codeborne.selenide.SelenideElement;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.Selenide.closeWindow;
 import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.WebDriverRunner.getSelenideDriver;
 
 @Service
 public class BookingService {
@@ -39,13 +42,23 @@ public class BookingService {
     @Scheduled(cron = "00 59 17 * * ?")
     @PostConstruct
     public void register() throws InterruptedException {
+
+
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("start-maximized"); // open Browser in maximized mode
+        options.addArguments("disable-infobars"); // disabling infobars
+        options.addArguments("--disable-extensions"); // disabling extensions
+        options.addArguments("--disable-gpu"); // applicable to windows os only
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        options.addArguments("--no-sandbox"); // Bypass OS security model
+
         WebDriverManager.chromedriver().setup();
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("--no-sandbox");
-        chromeOptions.addArguments("--headless");
-        chromeOptions.addArguments("disable-gpu");
         long start = System.nanoTime();
+        Configuration.startMaximized = true;
         Configuration.headless = true;
+        Configuration.proxyEnabled = false;
+        Configuration.browser = "firefox";
 
         login();
         selectSwimmingActivity();
