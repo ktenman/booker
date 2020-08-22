@@ -68,7 +68,7 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "0 * * * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
         if (registered) {
             return;
