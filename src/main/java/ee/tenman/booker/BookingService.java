@@ -126,6 +126,7 @@ public class BookingService {
         $(By.id("login_Email")).setValue(email);
         $(By.id("login_Password")).setValue(password);
         $(By.id("login")).click();
+        log.info("Login succeeded");
     }
 
     public double duration(long start, long finish) {
