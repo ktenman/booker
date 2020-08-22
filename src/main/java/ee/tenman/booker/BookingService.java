@@ -3,6 +3,7 @@ package ee.tenman.booker;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.SelenideElement;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -25,29 +26,26 @@ import static com.codeborne.selenide.Selenide.open;
 @Service
 public class BookingService {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM");
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final String email;
+    private final String password;
 
-    @Value("${email}")
-    private String email;
-
-    @Value("${password}")
-    private String password;
-
-    @Scheduled(cron = "00 59 17 * * ?")
-    public void register() throws InterruptedException {
-
-        long start = System.nanoTime();
-
+    public BookingService(@Value("${password}") String password, @Value("${email}") String email) {
+        this.password = password;
+        this.email = email;
         Configuration.startMaximized = true;
         Configuration.headless = true;
         Configuration.proxyEnabled = false;
         Configuration.browser = "firefox";
+    }
 
+    @Scheduled(cron = "00 59 17 * * ?")
+    public void register() throws InterruptedException {
+        long start = System.nanoTime();
         login();
         selectSwimmingActivity();
         waitUntil6Pm();
-
         if (!hasRegistered()) {
             log.info("Not registered.");
             tearDown(start);
@@ -111,7 +109,7 @@ public class BookingService {
         $(By.id("bottomsubmit")).click();
     }
 
-    private void login() {
+    public void login() {
         open("https://better.legendonlineservices.co.uk/enterprise/account/login");
         $(By.id("login_Email")).setValue(email);
         $(By.id("login_Password")).setValue(password);
