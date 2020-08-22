@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +35,6 @@ public class BookingService {
     private String password;
 
     @Scheduled(cron = "00 59 17 * * ?")
-//    @PostConstruct
     public void register() throws InterruptedException {
 
         ChromeOptions options = new ChromeOptions();
