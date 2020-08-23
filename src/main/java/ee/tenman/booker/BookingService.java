@@ -58,7 +58,7 @@ public class BookingService {
         long start = System.nanoTime();
         login();
         selectSwimmingActivity();
-        waitUntil6Pm();
+        waitUntil5PmUtc();
         if (!hasRegistered()) {
             log.info("Not registered.");
             tearDown(start);
@@ -148,11 +148,11 @@ public class BookingService {
         log.info("Registered");
     }
 
-    private void waitUntil6Pm() {
+    private void waitUntil5PmUtc() {
         boolean isWait = true;
         while (isWait) {
             boolean isInPast = LocalDateTime.now()
-                    .isAfter(LocalDateTime.of(LocalDate.now(), LocalDateTime.parse("2015-08-04T18:00:00").toLocalTime()));
+                    .isAfter(LocalDateTime.of(LocalDate.now(), LocalDateTime.parse("2015-08-04T17:00:00").toLocalTime()));
             if (isInPast) {
                 log.info("Continue working!");
                 isWait = false;
