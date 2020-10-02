@@ -58,7 +58,6 @@ public class BookingService {
         long start = System.nanoTime();
         login();
         selectSwimmingActivity();
-        waitUntil5PmUtc();
         if (!hasRegistered()) {
             log.info("Not registered.");
             tearDown(start);
@@ -128,6 +127,7 @@ public class BookingService {
             SelenideElement selenideElement = e.$$(By.tagName("a")).find(text("Add to Basket"));
             if (text.contains("London") && text.contains(localDateTime.format(DATE_FORMATTER))
                     && text.contains("06:30") && text.contains("06:40") && selenideElement.exists()) {
+                waitUntil5PmUtc();
                 selenideElement.click();
                 return true;
             }
