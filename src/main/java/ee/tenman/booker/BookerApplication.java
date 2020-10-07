@@ -12,4 +12,5 @@ public class BookerApplication {
 		SpringApplication.run(BookerApplication.class, args);
 	}
 
+
 }
