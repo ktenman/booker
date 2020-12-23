@@ -125,7 +125,7 @@ public class BookingService {
         for (SelenideElement e : selenideElements) {
             String text = e.getText();
             SelenideElement selenideElement = e.$$(By.tagName("a")).find(text("Add to Basket"));
-            boolean times = text.contains("06:30") && text.contains("06:40") || text.contains("10:00") && text.contains("10:10");
+            boolean times = text.contains("06:30") && text.contains("06:40") || text.contains("07:00") && text.contains("07:10");
             if (text.contains("London") && text.contains(localDateTime.format(DATE_FORMATTER)) && times && selenideElement.exists()) {
                 waitUntil6PmUtc();
                 selenideElement.click();
