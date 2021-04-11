@@ -19,10 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.Selenide.open;
+import static org.openqa.selenium.By.className;
+import static org.openqa.selenium.By.id;
+import static org.openqa.selenium.By.linkText;
+import static org.openqa.selenium.By.tagName;
 
 @Service
 public class BookingService {
@@ -87,14 +93,13 @@ public class BookingService {
 
     boolean hasRegisteredToCustomDay(LocalDateTime start, List<String> times) {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
-        ElementsCollection selenideElements = $(By.tagName("table")).$$("tr");
-        for (SelenideElement e : selenideElements) {
-            String text = e.getText();
+        ElementsCollection elementsCollection = $$(tagName("a")).filter(text("basket"));
+        for (SelenideElement e : elementsCollection) {
+            String text = e.closest("tr").getText();
             boolean isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
-            SelenideElement selenideElement = e.$$(By.tagName("a")).find(text("Add to Basket"));
-            if (isValidDay && times.stream().anyMatch(text::contains) && selenideElement.exists()) {
+            if (isValidDay && times.stream().anyMatch(text::contains)) {
                 log.info("Found: {}", text);
-                selenideElement.click();
+                e.click();
                 return true;
             }
         }
@@ -121,7 +126,7 @@ public class BookingService {
     private boolean hasRegistered() {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
         LocalDateTime localDateTime = LocalDateTime.now().plusDays(7);
-        ElementsCollection selenideElements = $(By.tagName("table")).$$("tr");
+        ElementsCollection selenideElements = $(tagName("table")).$$("tr");
         for (SelenideElement e : selenideElements) {
             String text = e.getText();
             SelenideElement selenideElement = e.$$(By.tagName("a")).find(text("Add to Basket"));
@@ -140,12 +145,16 @@ public class BookingService {
         closeWebDriver();
     }
 
-    private void agreeToBookingTerms() {
-        open("https://better.legendonlineservices.co.uk/poplar_baths/Basket/Index");
-        $(By.id("agreeBookingTerms")).click();
-        $(By.id("btnPayNow")).click();
-        registered = true;
-        log.info("Registered");
+    private boolean agreeToBookingTerms() {
+        try {
+            open("https://better.legendonlineservices.co.uk/poplar_baths/Basket/Index");
+            $(id("agreeBookingTerms")).click();
+            $(id("btnPayNow")).click();
+            log.info("Registered");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void waitUntil6PmUtc() {
@@ -166,15 +175,16 @@ public class BookingService {
 
     private void selectSwimmingActivity() throws InterruptedException {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Index");
-        $(By.linkText("Hackney")).click();
-        $(By.className("cscLeftPane")).$$(By.className("clubResult")).find(text("London Fields Lido")).$(By.tagName("label")).click();
-        $(By.linkText("Tower Hamlets")).click();
-        $(By.className("cscLeftPane")).$$(By.className("clubResult")).find(text("Poplar Baths LC")).$(By.tagName("label")).click();
-        TimeUnit.MILLISECONDS.sleep(100);
-        $(By.id("behaviours")).$$(By.className("activityItem")).find(text("Swim")).$(By.tagName("label")).click();
-        TimeUnit.MILLISECONDS.sleep(100);
-        $(By.id("activities")).$$(By.className("activityItem")).find(text("Swim for Fitness")).$(By.tagName("label")).click();
-        $(By.id("bottomsubmit")).click();
+        $(linkText("Hackney")).click();
+        ElementsCollection selenideElements = $(className("cscLeftPane")).$$(className("clubResult"));
+        selenideElements.find(text("London Fields Lido")).$(tagName("label")).click();
+        $(linkText("Tower Hamlets")).click();
+        selenideElements.find(text("Poplar Baths LC")).$(tagName("label")).click();
+        $(id("behaviours")).waitUntil(exist, 30);
+        $(id("behaviours")).$$(className("activityItem")).find(text("Swim")).$(tagName("label")).click();
+        $(id("activities")).waitUntil(exist, 30);
+        $(id("activities")).$$(className("activityItem")).find(text("Swim for Fitness")).$(tagName("label")).click();
+        $(id("bottomsubmit")).click();
         log.info("Swimming activity selected");
     }
 
@@ -183,9 +193,9 @@ public class BookingService {
         try {
             closeWebDriver();
             open("https://better.legendonlineservices.co.uk/enterprise/account/login");
-            $(By.id("login_Email")).setValue(email);
-            $(By.id("login_Password")).setValue(password);
-            $(By.id("login")).click();
+            $(id("login_Email")).setValue(email);
+            $(id("login_Password")).setValue(password);
+            $(id("login")).click();
             log.info("Login succeeded");
             return ImmutableMap.of("loginSucceed", true, "duration in seconds", duration(start, System.nanoTime()));
         } catch (Exception e) {
