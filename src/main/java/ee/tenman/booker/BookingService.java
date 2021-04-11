@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -74,9 +73,9 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "0/30 * 0-16 * * ?")
-    @Scheduled(cron = "0/30 * 19-23 * * ?")
-    @Scheduled(cron = "0/30 1-58 17-18 * * ?")
+    @Scheduled(cron = "0/20 * 0-16 * * ?")
+    @Scheduled(cron = "0/20 * 19-23 * * ?")
+    @Scheduled(cron = "0/20 1-58 17-18 * * ?")
     public void registerToCustomTime() throws InterruptedException {
         if (registered) {
             return;
@@ -84,8 +83,8 @@ public class BookingService {
         long start = System.nanoTime();
         login();
         selectSwimmingActivity();
-        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime now = LocalDateTime.of(2020, 10, 6, 0, 0);
+//        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.of(2020, 4, 12, 0, 0);
         if (!hasRegisteredToCustomDay(now, getStartingTimes(now))) {
             log.info("Not registered");
             tearDown(start);
