@@ -4,7 +4,6 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.google.common.collect.ImmutableMap;
-import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,9 +58,7 @@ public class BookingService {
         Configuration.browser = "firefox";
     }
 
-    @Scheduled(cron = "00 59 16 * * ?")
     @Scheduled(cron = "00 59 17 * * ?")
-    @Scheduled(cron = "00 59 18 * * ?")
     public void register() throws InterruptedException {
         long start = System.nanoTime();
         login();
@@ -126,16 +123,15 @@ public class BookingService {
     }
 
     private boolean hasRegistered() {
+        LocalDateTime start = LocalDateTime.now().plusDays(7);
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
-        LocalDateTime localDateTime = LocalDateTime.now().plusDays(7);
-        ElementsCollection selenideElements = $(tagName("table")).$$("tr");
-        for (SelenideElement e : selenideElements) {
-            String text = e.getText();
-            SelenideElement selenideElement = e.$$(By.tagName("a")).find(text("Add to Basket"));
-            boolean times = text.contains("07:50") && text.contains("08:00");
-            if (text.contains("London") && text.contains(localDateTime.format(DATE_FORMATTER)) && times && selenideElement.exists()) {
-                waitUntil6PmUtc();
-                selenideElement.click();
+        ElementsCollection elementsCollection = $$(tagName("a")).filter(text("basket"));
+        for (SelenideElement e : elementsCollection) {
+            String text = e.closest("tr").getText();
+            boolean isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
+            if (isValidDay && text.contains("07:50") && text.contains("08:00")) {
+                log.info("Found: {}", text);
+                e.click();
                 return true;
             }
         }
