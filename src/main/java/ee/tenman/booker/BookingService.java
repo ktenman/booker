@@ -59,7 +59,9 @@ public class BookingService {
         Configuration.browser = "firefox";
     }
 
-    @Scheduled(cron = "00 59 17 * * ?", zone = "UTC")
+    @Scheduled(cron = "00 59 16 * * ?")
+    @Scheduled(cron = "00 59 17 * * ?")
+    @Scheduled(cron = "00 59 18 * * ?")
     public void register() throws InterruptedException {
         long start = System.nanoTime();
         login();
