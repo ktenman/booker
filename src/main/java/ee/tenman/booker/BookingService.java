@@ -146,7 +146,9 @@ public class BookingService {
     private boolean agreeToBookingTerms() {
         try {
             open("https://better.legendonlineservices.co.uk/poplar_baths/Basket/Index");
+            $(id("agreeBookingTerms")).waitUntil(exist, 30_000);
             $(id("agreeBookingTerms")).click();
+            $(id("btnPayNow")).waitUntil(exist, 30_000);
             $(id("btnPayNow")).click();
             log.info("Registered");
             return true;
