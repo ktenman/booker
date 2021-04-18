@@ -3,6 +3,7 @@ package ee.tenman.booker;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +40,7 @@ public class BookingService {
     private final String password;
     private final String startTime;
     private final String endTime;
-    private boolean registered = false;
+    private List<LocalDateTime> dates = new ArrayList<>();
 
     public BookingService(
             @Value("${password}") String password,
@@ -57,9 +57,22 @@ public class BookingService {
         Configuration.proxyEnabled = false;
         Configuration.screenshots = false;
         Configuration.browser = "chrome";
+        dates.add(LocalDateTime.of(2020, 4, 22, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 25, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 26, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 27, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 28, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 29, 0, 0));
+        dates.add(LocalDateTime.of(2020, 4, 30, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 1, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 2, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 3, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 4, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 5, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 6, 0, 0));
     }
 
-    @Scheduled(cron = "00 59 17 * * ?")
+//    @Scheduled(cron = "30 0 18 * * ?")
     public void register() throws InterruptedException {
         long start = System.nanoTime();
         login();
@@ -73,28 +86,29 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "0/20 * 0-16 * * ?")
-    @Scheduled(cron = "0/20 * 19-23 * * ?")
-    @Scheduled(cron = "0/20 1-58 17-18 * * ?")
+    @Scheduled(cron = "0/20 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
-        if (registered) {
-            return;
-        }
         long start = System.nanoTime();
         login();
         selectSwimmingActivity();
-//        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime now = LocalDateTime.of(2020, 4, 12, 0, 0);
-        if (!hasRegisteredToCustomDay(now, getStartingTimes(now))) {
-            log.info("Not registered");
-            tearDown(start);
-            return;
+        boolean registered = false;
+        LocalDateTime current = null;
+        for (LocalDateTime now : dates) {
+            if (hasRegisteredToCustomDay(now, getStartingTimes(now))) {
+                log.info("Registered");
+                registered = agreeToBookingTerms();
+                if (registered) {
+                    current = now;
+                    break;
+                }
+            }
         }
-        registered = agreeToBookingTerms();
-        tearDown(start);
         if (registered) {
-            System.exit(0);
+            log.info("Removing: {}", current);
+            dates.remove(current);
+            log.info("Dates: {}", dates);
         }
+        tearDown(start);
     }
 
     boolean hasRegisteredToCustomDay(LocalDateTime start, List<String> times) {
@@ -133,10 +147,11 @@ public class BookingService {
         LocalDateTime start = LocalDateTime.now().plusDays(7);
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
         ElementsCollection elementsCollection = $$(tagName("a")).filter(text("basket"));
+        List<String> times = ImmutableList.of("07:50", "08:00");
         for (SelenideElement e : elementsCollection) {
             String text = e.closest("tr").getText();
             boolean isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
-            if (isValidDay && text.contains("07:50") && text.contains("08:00")) {
+            if (isValidDay && times.stream().anyMatch(text::contains)) {
                 log.info("Found: {}", text);
                 e.click();
                 return true;
