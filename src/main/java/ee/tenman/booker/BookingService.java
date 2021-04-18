@@ -56,7 +56,7 @@ public class BookingService {
         Configuration.headless = true;
         Configuration.proxyEnabled = false;
         Configuration.screenshots = false;
-        Configuration.browser = "chrome";
+        Configuration.browser = "firefox";
         dates.add(LocalDateTime.of(2020, 4, 22, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 25, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 26, 0, 0));
