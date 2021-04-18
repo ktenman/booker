@@ -58,7 +58,6 @@ public class BookingService {
         Configuration.screenshots = false;
         Configuration.browser = "firefox";
         dates.add(LocalDateTime.of(2020, 4, 22, 0, 0));
-        dates.add(LocalDateTime.of(2020, 4, 25, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 26, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 27, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 28, 0, 0));
@@ -86,7 +85,7 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
         long start = System.nanoTime();
         login();
