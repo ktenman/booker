@@ -57,11 +57,6 @@ public class BookingService {
         Configuration.proxyEnabled = false;
         Configuration.screenshots = false;
         Configuration.browser = "firefox";
-        dates.add(LocalDateTime.of(2020, 4, 22, 0, 0));
-        dates.add(LocalDateTime.of(2020, 4, 26, 0, 0));
-        dates.add(LocalDateTime.of(2020, 4, 27, 0, 0));
-        dates.add(LocalDateTime.of(2020, 4, 28, 0, 0));
-        dates.add(LocalDateTime.of(2020, 4, 29, 0, 0));
         dates.add(LocalDateTime.of(2020, 4, 30, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 1, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 2, 0, 0));
@@ -69,6 +64,30 @@ public class BookingService {
         dates.add(LocalDateTime.of(2020, 5, 4, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 5, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 6, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 7, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 8, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 9, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 10, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 11, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 12, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 13, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 14, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 15, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 16, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 17, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 18, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 19, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 20, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 21, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 22, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 23, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 24, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 25, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 26, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 27, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 28, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 29, 0, 0));
+        dates.add(LocalDateTime.of(2020, 5, 30, 0, 0));
     }
 
 //    @Scheduled(cron = "30 0 18 * * ?")
