@@ -58,7 +58,6 @@ public class BookingService {
         Configuration.screenshots = false;
         Configuration.browser = "firefox";
         dates.add(LocalDateTime.of(2020, 4, 30, 0, 0));
-        dates.add(LocalDateTime.of(2020, 5, 1, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 2, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 3, 0, 0));
         dates.add(LocalDateTime.of(2020, 5, 4, 0, 0));
@@ -90,7 +89,7 @@ public class BookingService {
         dates.add(LocalDateTime.of(2020, 5, 30, 0, 0));
     }
 
-//    @Scheduled(cron = "30 0 18 * * ?")
+    //    @Scheduled(cron = "30 0 18 * * ?")
     public void register() throws InterruptedException {
         long start = System.nanoTime();
         login();
@@ -104,8 +103,11 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "15/30 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
+        if (dates.isEmpty()) {
+            return;
+        }
         long start = System.nanoTime();
         login();
         selectSwimmingActivity();
@@ -154,7 +156,7 @@ public class BookingService {
                 Integer.parseInt(endTime.split(":")[1]),
                 0);
         List<String> result = new ArrayList<>();
-        while (start.isBefore(end) || start.equals(end)){
+        while (start.isBefore(end) || start.equals(end)) {
             result.add(start.format(TIME_FORMATTER));
             start = start.plusMinutes(10);
         }
