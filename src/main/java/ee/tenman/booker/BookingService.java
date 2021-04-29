@@ -79,7 +79,7 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "15/30 * * * * ?")
+    @Scheduled(cron = "50 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
         if (dates.isEmpty()) {
             return;
