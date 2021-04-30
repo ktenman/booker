@@ -60,7 +60,7 @@ public class BookingService {
         for (int i = 6; i <= 27; i++) {
             dates.add(LocalDateTime.of(2020, 5, i, 0, 0));
         }
-        for (int i = 1; i <= 31; i++) {
+        for (int i = 1; i <= 30; i++) {
             dates.add(LocalDateTime.of(2020, 6, i, 0, 0));
         }
     }
