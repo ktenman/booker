@@ -56,7 +56,7 @@ public class BookingService {
         Configuration.headless = true;
         Configuration.proxyEnabled = false;
         Configuration.screenshots = false;
-        Configuration.browser = "firefox";
+        Configuration.browser = "chrome";
         for (int i = 10; i <= 27; i++) {
             dates.add(LocalDateTime.of(2020, 5, i, 0, 0));
         }
@@ -79,36 +79,8 @@ public class BookingService {
         tearDown(start);
     }
 
-    @Scheduled(cron = "10/20 * * * * ?")
+    @Scheduled(cron = "0/30 * * * * ?")
     public void registerToCustomTime() throws InterruptedException {
-        if (dates.isEmpty()) {
-            return;
-        }
-        long start = System.nanoTime();
-        login();
-        selectSwimmingActivity();
-        boolean registered = false;
-        LocalDateTime current = null;
-        for (LocalDateTime now : dates) {
-            if (hasRegisteredToCustomDay(now, getStartingTimes(now))) {
-                log.info("Registered");
-                registered = agreeToBookingTerms();
-                if (registered) {
-                    current = now;
-                    break;
-                }
-            }
-        }
-        if (registered) {
-            log.info("Removing: {}", current);
-            dates.remove(current);
-            log.info("Dates: {}", dates);
-        }
-        tearDown(start);
-    }
-
-    @Scheduled(cron = "0/20 * * * * ?")
-    public void registerToCustomTime2() throws InterruptedException {
         if (dates.isEmpty()) {
             return;
         }
