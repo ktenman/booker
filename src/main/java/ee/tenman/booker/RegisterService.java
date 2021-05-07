@@ -54,7 +54,7 @@ public class RegisterService {
         this.loginService = loginService;
         this.unRegisterService = unRegisterService;
         LocalDateTime now = LocalDateTime.now();
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
     }
@@ -92,7 +92,9 @@ public class RegisterService {
     public void registerToCustomTime() {
         long start = System.nanoTime();
         LocalDateTime now = LocalDateTime.now();
-        dates.add(LocalDateTime.of(now.plusDays(7).toLocalDate(), MIDNIGHT));
+        if (now.getHour() >= 18) {
+            dates.add(LocalDateTime.of(now.plusDays(7).toLocalDate(), MIDNIGHT));
+        }
         loginService.login();
         List<Booking> activeBookings = fetchActiveBookings();
         selectSwimmingActivity();
