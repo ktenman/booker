@@ -138,52 +138,57 @@ public class RegisterService {
     }
 
     boolean register(LocalDateTime start, List<String> times, List<Booking> activeBookings) {
-        open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
-        ElementsCollection elementsCollection = $$(tagName("a")).filter(text("basket"));
-        log.info("Starting to analyze... {}", start);
-        for (SelenideElement e : elementsCollection) {
-            String text = e.closest("tr").getText();
-            boolean isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
-            if (isValidDay && times.stream().anyMatch(text::contains)) {
-                log.info("Found: {}", text);
-                String[] strings = text.split(" - ")[0].split(" ");
-                String time = strings[strings.length - 1];
-                LocalDateTime currentSlot = LocalDateTime.of(start.toLocalDate(), LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm")));
-                if (alreadyRegisteredToDay(start, activeBookings) && isLater(currentSlot, activeBookings)) {
-                    log.info("Trying to unregister");
-                    boolean unRegistered = unRegisterService.unRegister(findClosestBooking(start, activeBookings).getCancelBookingUrl());
-                    if (!unRegistered) {
-                        return false;
-                    }
-                    loginService.login();
-                    selectSwimmingActivity();
-                    open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
-                    elementsCollection = $$(tagName("a")).filter(text("basket"));
-                    for (SelenideElement e2 : elementsCollection) {
-                        text = e2.closest("tr").getText();
-                        isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
-                        if (isValidDay && times.stream().anyMatch(text::contains)) {
-                            log.info("Found: {}", text);
-                            log.info("Registering...");
-                            e2.click();
-                            log.info("Registered!");
-                            return true;
+        try {
+            open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
+            ElementsCollection elementsCollection = $$(tagName("a")).filter(text("basket"));
+            log.info("Starting to analyze... {}", start);
+            for (SelenideElement e : elementsCollection) {
+                String text = e.closest("tr").getText();
+                boolean isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
+                if (isValidDay && times.stream().anyMatch(text::contains)) {
+                    log.info("Found: {}", text);
+                    String[] strings = text.split(" - ")[0].split(" ");
+                    String time = strings[strings.length - 1];
+                    LocalDateTime currentSlot = LocalDateTime.of(start.toLocalDate(), LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm")));
+                    if (alreadyRegisteredToDay(start, activeBookings) && isLater(currentSlot, activeBookings)) {
+                        log.info("Trying to unregister");
+                        boolean unRegistered = unRegisterService.unRegister(findClosestBooking(start, activeBookings).getCancelBookingUrl());
+                        if (!unRegistered) {
+                            return false;
                         }
+                        loginService.login();
+                        selectSwimmingActivity();
+                        open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
+                        elementsCollection = $$(tagName("a")).filter(text("basket"));
+                        for (SelenideElement e2 : elementsCollection) {
+                            text = e2.closest("tr").getText();
+                            isValidDay = text.contains("London") && text.contains(start.format(DATE_FORMATTER));
+                            if (isValidDay && times.stream().anyMatch(text::contains)) {
+                                log.info("Found: {}", text);
+                                log.info("Registering...");
+                                e2.click();
+                                log.info("Registered!");
+                                return true;
+                            }
+                        }
+                        return false;
+                    } else if (alreadyRegisteredToDay(start, activeBookings)) {
+                        log.info("Skipping. Already registered {}", findClosestBooking(start, activeBookings));
+                        return false;
+                    } else {
+                        log.info("Registering...");
+                        e.click();
+                        agreeToBookingTerms();
+                        log.info("Registered!");
+                        return true;
                     }
-                    return false;
-                } else if (alreadyRegisteredToDay(start, activeBookings)) {
-                    log.info("Skipping. Already registered {}", findClosestBooking(start, activeBookings));
-                    return false;
-                } else {
-                    log.info("Registering...");
-                    e.click();
-                    agreeToBookingTerms();
-                    log.info("Registered!");
-                    return true;
                 }
             }
+            return false;
+        } catch (Exception e) {
+            log.error("Failed to register. Error ", e);
+            return false;
         }
-        return false;
     }
 
     private boolean isLater(LocalDateTime currentSlot, List<Booking> activeBookings) {
