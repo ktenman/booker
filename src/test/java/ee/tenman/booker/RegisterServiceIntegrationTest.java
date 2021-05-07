@@ -5,13 +5,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
-class BookingServiceIntegrationTest {
+class RegisterServiceIntegrationTest {
 
     @Resource
-    BookingService bookingService;
+    RegisterService bookingService;
 
     @Test
     void registerToCustomTime() throws InterruptedException {
