@@ -88,7 +88,7 @@ public class RegisterService {
         return activeBookings;
     }
 
-    @Scheduled(cron = "50 * * * * ?")
+    @Scheduled(cron = "50 1/2 * * * ?")
     public void registerToCustomTime() {
         long start = System.nanoTime();
         LocalDateTime now = LocalDateTime.now();
