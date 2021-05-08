@@ -92,7 +92,7 @@ public class RegisterService {
     public void registerToCustomTime() {
         long start = System.nanoTime();
         LocalDateTime now = LocalDateTime.now();
-        if (now.getHour() >= 18) {
+        if (now.getHour() >= 18 || (now.getHour() == 17 && now.getMinute() == 59)) {
             dates.add(LocalDateTime.of(now.plusDays(7).toLocalDate(), MIDNIGHT));
         }
         loginService.login();
