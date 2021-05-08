@@ -9,7 +9,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
@@ -25,7 +24,7 @@ public class LoginService {
     @Value("${email}")
     String email;
 
-    @Retryable(value = {NoSuchElementException.class}, maxAttempts = 3, backoff = @Backoff(delay = 350))
+    @Retryable(value = {Exception.class}, maxAttempts = 2, backoff = @Backoff(delay = 300))
     public Map<String, Object> login() {
         long start = System.nanoTime();
         Selenide.closeWebDriver();

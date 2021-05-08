@@ -7,7 +7,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.NoSuchElementException;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$$;
@@ -21,7 +20,7 @@ public class UnRegisterService {
     @Resource
     private LoginService loginService;
 
-    @Retryable(value = {NoSuchElementException.class}, maxAttempts = 3, backoff = @Backoff(delay = 350))
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public boolean unRegister(String link) {
         loginService.login();
         open(link);

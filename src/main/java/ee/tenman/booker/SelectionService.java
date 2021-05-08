@@ -6,9 +6,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-
-import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
@@ -21,18 +18,26 @@ import static org.openqa.selenium.By.tagName;
 @Slf4j
 public class SelectionService {
 
-    @Retryable(value = {NoSuchElementException.class}, maxAttempts = 3, backoff = @Backoff(delay = 350))
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void selectSwimmingActivity() {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Index");
         $(linkText("Hackney")).click();
-        ElementsCollection selenideElements = $(className("cscLeftPane")).$$(className("clubResult"));
-        selenideElements.find(text("London Fields Lido")).$(tagName("label")).click();
-        $(linkText("Tower Hamlets")).click();
-        selenideElements.find(text("Poplar Baths LC")).$(tagName("label")).click();
-        $(id("behaviours")).waitUntil(exist, 30);
-        $(id("behaviours")).$$(className("activityItem")).find(text("Swim")).$(tagName("label")).click();
-        $(id("activities")).waitUntil(exist, 30);
-        $(id("activities")).$$(className("activityItem")).find(text("Swim for Fitness")).$(tagName("label")).click();
+        ElementsCollection selenideElements = $(className("cscLeftPane"))
+                .$$(className("clubResult"));
+        selenideElements.find(text("London Fields Lido"))
+                .$(tagName("label"))
+                .click();
+        $(linkText("Tower Hamlets"))
+                .click();
+        selenideElements.find(text("Poplar Baths LC"))
+                .$(tagName("label"))
+                .click();
+        $(id("behaviours")).$$(className("activityItem"))
+                .find(text("Swim"))
+                .$(tagName("label")).click();
+        $(id("activities")).$$(className("activityItem"))
+                .find(text("Swim for Fitness"))
+                .$(tagName("label")).click();
         $(id("bottomsubmit")).click();
         log.info("Swimming activity selected");
     }
