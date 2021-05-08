@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.open;
+import static org.openqa.selenium.By.tagName;
 
 @Service
 @Slf4j
@@ -23,14 +24,17 @@ public class BookingService {
 
     private static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
 
-    @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 350))
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public List<Booking> fetchActiveBookings() {
         log.info("Fetching active bookings");
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
-        ElementsCollection foundActiveBookings = $$(By.tagName("p")).filter(text("Cancel Booking"));
+        ElementsCollection foundActiveBookings = $$(tagName("p"))
+                .filter(text("Cancel Booking"));
         List<Booking> activeBookings = foundActiveBookings.stream()
                 .map(booking -> {
-                    String place = booking.parent().find(By.tagName("h5")).text();
+                    String place = booking.parent()
+                            .find(tagName("h5"))
+                            .text();
                     String date = booking.text()
                             .split("Date: ")[1]
                             .split(" - ")[0];
