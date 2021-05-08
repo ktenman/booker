@@ -88,7 +88,7 @@ public class RegisterService {
         return activeBookings;
     }
 
-    @Scheduled(cron = "45 1/2 * * * ?")
+    @Scheduled(cron = "45 * * * * ?")
     public void registerToCustomTime() {
         long start = System.nanoTime();
         LocalDateTime now = LocalDateTime.now();
@@ -198,6 +198,15 @@ public class RegisterService {
             log.info("Found booking {} is after current slot {}", foundBooking, currentSlot);
         }
         return after;
+    }
+
+    private boolean isBefore(LocalDateTime currentSlot, List<Booking> activeBookings) {
+        Booking foundBooking = findClosestBooking(currentSlot, activeBookings);
+        boolean before = foundBooking.getStartingDateTime().isBefore(currentSlot);
+        if (before) {
+            log.info("Found booking {} is before current slot {}", foundBooking, currentSlot);
+        }
+        return before;
     }
 
     Booking findClosestBooking(LocalDateTime localDateTime, List<Booking> activeBookings) {
