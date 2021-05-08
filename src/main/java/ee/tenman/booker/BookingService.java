@@ -30,7 +30,7 @@ public class BookingService {
         log.info("Fetching active bookings");
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
