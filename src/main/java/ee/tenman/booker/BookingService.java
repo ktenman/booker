@@ -1,7 +1,6 @@
 package ee.tenman.booker;
 
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.ex.ElementNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Condition.text;
@@ -26,10 +25,15 @@ public class BookingService {
 
     private static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
 
-    @Retryable(value = {NoSuchElementException.class, ElementNotFound.class}, maxAttempts = 3, backoff = @Backoff(delay = 350))
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public List<Booking> fetchActiveBookings() {
         log.info("Fetching active bookings");
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ElementsCollection foundActiveBookings = $$(tagName("p"))
                 .filter(text("Cancel Booking"));
         List<Booking> activeBookings = foundActiveBookings.stream()

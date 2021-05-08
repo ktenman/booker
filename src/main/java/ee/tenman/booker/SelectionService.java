@@ -6,6 +6,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
@@ -21,6 +23,11 @@ public class SelectionService {
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 300))
     public void selectSwimmingActivity() {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Index");
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         $(linkText("Hackney")).click();
         ElementsCollection selenideElements = $(className("cscLeftPane"))
                 .$$(className("clubResult"));

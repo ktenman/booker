@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +56,7 @@ public class RegisterService {
         for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
+        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 9), MIDNIGHT));
     }
 
     @Scheduled(cron = "45 * * * * ?")
