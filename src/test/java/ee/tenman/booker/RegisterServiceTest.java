@@ -11,7 +11,18 @@ class RegisterServiceTest {
 
     LoginService loginService = new LoginService();
     UnRegisterService unRegisterService = new UnRegisterService();
-    RegisterService registerService = new RegisterService("06:30", "07:00", loginService, unRegisterService);
+    BookingService bookingService = new BookingService();
+    TermsService termsService = new TermsService();
+    SelectionService selectionService = new SelectionService();
+    RegisterService registerService = new RegisterService(
+            "06:30",
+            "07:00",
+            loginService,
+            bookingService,
+            unRegisterService,
+            selectionService,
+            termsService
+    );
 
     @Test
     void alreadyRegistered() {

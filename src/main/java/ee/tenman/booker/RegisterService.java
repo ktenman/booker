@@ -4,9 +4,7 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,18 +16,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.Selenide.open;
 import static java.time.LocalTime.MIDNIGHT;
-import static org.openqa.selenium.By.className;
-import static org.openqa.selenium.By.id;
-import static org.openqa.selenium.By.linkText;
 import static org.openqa.selenium.By.tagName;
 
 @Service
@@ -42,50 +34,27 @@ public class RegisterService {
     private final String startTime;
     private final String endTime;
     private final LoginService loginService;
+    private final BookingService bookingService;
     private final UnRegisterService unRegisterService;
+    private final SelectionService selectionService;
+    private final TermsService termsService;
     private Set<LocalDateTime> dates = new HashSet<>();
 
     public RegisterService(
             @Value("${startTime}") String startTime,
             @Value("${endTime}") String endTime,
-            LoginService loginService, UnRegisterService unRegisterService) {
+            LoginService loginService, BookingService bookingService, UnRegisterService unRegisterService, SelectionService selectionService, TermsService termsService) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.loginService = loginService;
+        this.bookingService = bookingService;
         this.unRegisterService = unRegisterService;
+        this.selectionService = selectionService;
+        this.termsService = termsService;
         LocalDateTime now = LocalDateTime.now();
         for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
-    }
-
-    private List<Booking> fetchActiveBookings() {
-        log.info("Fetching active bookings");
-        open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
-        ElementsCollection foundActiveBookings = $$(By.tagName("p")).filter(text("Cancel Booking"));
-        List<Booking> activeBookings = foundActiveBookings.stream()
-                .map(booking -> {
-                    String place = booking.parent().find(By.tagName("h5")).text();
-                    String date = booking.text()
-                            .split("Date: ")[1]
-                            .split(" - ")[0];
-                    DateTime dateTime = DATE_TIME_FORMATTER.parseDateTime(date);
-                    LocalDateTime localDateTime = LocalDateTime.of(
-                            dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(),
-                            dateTime.getHourOfDay(), dateTime.getMinuteOfHour(), 0, 0
-                    );
-                    String cancelBookingUrl = booking.find(By.linkText("Cancel Booking"))
-                            .getAttribute("href");
-                    return Booking.builder()
-                            .startingDateTime(localDateTime)
-                            .placeName(place)
-                            .booked(true)
-                            .cancelBookingUrl(cancelBookingUrl)
-                            .build();
-                })
-                .collect(Collectors.toList());
-        log.info("Active bookings {}", activeBookings);
-        return activeBookings;
     }
 
     @Scheduled(cron = "45 * * * * ?")
@@ -96,8 +65,8 @@ public class RegisterService {
             dates.add(LocalDateTime.of(now.plusDays(7).toLocalDate(), MIDNIGHT));
         }
         loginService.login();
-        List<Booking> activeBookings = fetchActiveBookings();
-        selectSwimmingActivity();
+        List<Booking> activeBookings = bookingService.fetchActiveBookings();
+        selectionService.selectSwimmingActivity();
         List<LocalDateTime> datesToRemove = new ArrayList<>();
         dates.stream()
                 .filter(dateTime -> alreadyRegisteredToDayAndSixThirty(dateTime, activeBookings))
@@ -157,7 +126,7 @@ public class RegisterService {
                             return false;
                         }
                         loginService.login();
-                        selectSwimmingActivity();
+                        selectionService.selectSwimmingActivity();
                         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Timetable?KeepThis=true&#");
                         elementsCollection = $$(tagName("a")).filter(text("basket"));
                         for (SelenideElement e2 : elementsCollection) {
@@ -167,6 +136,7 @@ public class RegisterService {
                                 log.info("Found: {}", text);
                                 log.info("Registering...");
                                 e2.click();
+                                termsService.agreeToBookingTerms();
                                 log.info("Registered!");
                                 return true;
                             }
@@ -178,7 +148,7 @@ public class RegisterService {
                     } else {
                         log.info("Registering...");
                         e.click();
-                        agreeToBookingTerms();
+                        termsService.agreeToBookingTerms();
                         log.info("Registered!");
                         return true;
                     }
@@ -236,35 +206,6 @@ public class RegisterService {
     private void tearDown(long start) {
         log.info("Finishing with: {}s", duration(start, System.nanoTime()));
         closeWebDriver();
-    }
-
-    private boolean agreeToBookingTerms() {
-        try {
-            open("https://better.legendonlineservices.co.uk/poplar_baths/Basket/Index");
-            $(id("agreeBookingTerms")).waitUntil(exist, 30_000);
-            $(id("agreeBookingTerms")).click();
-            $(id("btnPayNow")).waitUntil(exist, 30_000);
-            $(id("btnPayNow")).click();
-            log.info("Agreed to booking terms");
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private void selectSwimmingActivity() {
-        open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Index");
-        $(linkText("Hackney")).click();
-        ElementsCollection selenideElements = $(className("cscLeftPane")).$$(className("clubResult"));
-        selenideElements.find(text("London Fields Lido")).$(tagName("label")).click();
-        $(linkText("Tower Hamlets")).click();
-        selenideElements.find(text("Poplar Baths LC")).$(tagName("label")).click();
-        $(id("behaviours")).waitUntil(exist, 30);
-        $(id("behaviours")).$$(className("activityItem")).find(text("Swim")).$(tagName("label")).click();
-        $(id("activities")).waitUntil(exist, 30);
-        $(id("activities")).$$(className("activityItem")).find(text("Swim for Fitness")).$(tagName("label")).click();
-        $(id("bottomsubmit")).click();
-        log.info("Swimming activity selected");
     }
 
     public double duration(long start, long finish) {
