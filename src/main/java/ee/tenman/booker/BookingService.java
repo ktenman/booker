@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Condition.text;
@@ -25,23 +24,21 @@ public class BookingService {
 
     private static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
 
-    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 300))
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public List<Booking> fetchActiveBookings() {
         log.info("Fetching active bookings");
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ElementsCollection foundActiveBookings = $$(tagName("p"))
+        ElementsCollection foundActiveBookings = $$(By.tagName("a"))
                 .filter(text("Cancel Booking"));
         List<Booking> activeBookings = foundActiveBookings.stream()
                 .map(booking -> {
                     String place = booking.parent()
+                            .parent()
                             .find(tagName("h5"))
                             .text();
-                    String date = booking.text()
+                    String date = booking
+                            .parent()
+                            .text()
                             .split("Date: ")[1]
                             .split(" - ")[0];
                     DateTime dateTime = DATE_TIME_FORMATTER.parseDateTime(date);
@@ -49,8 +46,7 @@ public class BookingService {
                             dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(),
                             dateTime.getHourOfDay(), dateTime.getMinuteOfHour(), 0, 0
                     );
-                    String cancelBookingUrl = booking.find(By.linkText("Cancel Booking"))
-                            .getAttribute("href");
+                    String cancelBookingUrl = booking.getAttribute("href");
                     return Booking.builder()
                             .startingDateTime(localDateTime)
                             .placeName(place)
