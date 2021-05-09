@@ -1,6 +1,7 @@
 package ee.tenman.booker;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -9,6 +10,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,13 +26,32 @@ public class BookingService {
 
     private static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
 
+    @Resource
+    private LoginService loginService;
+
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public List<Booking> fetchActiveBookings() {
         log.info("Fetching active bookings");
+        List<Booking> activeBookings = getBookings();
+        if (getBookings().isEmpty()) {
+            Selenide.refresh();
+            loginService.login();
+            activeBookings = getBookings();
+            if (activeBookings.isEmpty()) {
+                Selenide.refresh();
+                loginService.login();
+                activeBookings = getBookings();
+            }
+        }
+        log.info("Active bookings {}", activeBookings);
+        return activeBookings;
+    }
+
+    private List<Booking> getBookings() {
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/MyBookings");
         ElementsCollection foundActiveBookings = $$(By.tagName("a"))
                 .filter(text("Cancel Booking"));
-        List<Booking> activeBookings = foundActiveBookings.stream()
+        return foundActiveBookings.stream()
                 .map(booking -> {
                     String place = booking.parent()
                             .parent()
@@ -55,8 +76,6 @@ public class BookingService {
                             .build();
                 })
                 .collect(Collectors.toList());
-        log.info("Active bookings {}", activeBookings);
-        return activeBookings;
     }
 
 }

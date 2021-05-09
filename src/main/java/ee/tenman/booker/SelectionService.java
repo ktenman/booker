@@ -1,6 +1,7 @@
 package ee.tenman.booker;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,6 +21,21 @@ public class SelectionService {
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void selectSwimmingActivity() {
+        int count = 0;
+        while (count < 3) {
+            try {
+                clickOnSwimmingActivity();
+                count = 3;
+            } catch (Exception e) {
+                log.error("Failed to select swimming activity. ", e);
+                count++;
+                Selenide.refresh();
+            }
+        }
+    }
+
+    private void clickOnSwimmingActivity() {
+        log.info("Starting swimming selection");
         open("https://better.legendonlineservices.co.uk/poplar_baths/BookingsCentre/Index");
         ElementsCollection selenideElements = $(className("cscLeftPane"))
                 .$$(className("clubResult"));
