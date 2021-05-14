@@ -54,7 +54,8 @@ public class RegisterService {
         for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
-        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 9), MIDNIGHT));
+        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 15), MIDNIGHT));
+        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 16), MIDNIGHT));
     }
 
     @Scheduled(cron = "45 * * * * ?")
