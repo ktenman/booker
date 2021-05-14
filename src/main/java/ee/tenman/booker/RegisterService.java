@@ -59,7 +59,9 @@ public class RegisterService {
         for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
-        dates.removeAll(datesToRemove);
+        for (LocalDate localDate : datesToRemove) {
+            dates.remove(LocalDateTime.of(localDate, MIDNIGHT));
+        }
     }
 
     @Scheduled(cron = "45 * * * * ?")
