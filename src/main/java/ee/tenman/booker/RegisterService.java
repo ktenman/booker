@@ -3,6 +3,7 @@ package ee.tenman.booker;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,6 +39,10 @@ public class RegisterService {
     private final SelectionService selectionService;
     private final TermsService termsService;
     private Set<LocalDateTime> dates = new HashSet<>();
+    private List<LocalDateTime> datesToRemove = ImmutableList.of(
+            LocalDateTime.of(LocalDate.of(2021, 5, 15), MIDNIGHT),
+            LocalDateTime.of(LocalDate.of(2021, 5, 16), MIDNIGHT)
+    );
 
     public RegisterService(
             @Value("${startTime}") String startTime,
@@ -54,8 +59,7 @@ public class RegisterService {
         for (int i = 1; i <= 6; i++) {
             dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
         }
-        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 15), MIDNIGHT));
-        dates.remove(LocalDateTime.of(LocalDate.of(2021, 5, 16), MIDNIGHT));
+        dates.removeAll(datesToRemove);
     }
 
     @Scheduled(cron = "45 * * * * ?")
@@ -67,6 +71,7 @@ public class RegisterService {
         }
         loginService.login();
         List<Booking> activeBookings = bookingService.fetchActiveBookings();
+        unRegisterNotNeededBookings(activeBookings);
         selectionService.selectSwimmingActivity();
         List<LocalDateTime> datesToRemove = new ArrayList<>();
         dates.stream()
@@ -83,6 +88,16 @@ public class RegisterService {
         dates.forEach(dateTime -> register(dateTime, getStartingTimes(dateTime), activeBookings));
         logout();
         tearDown(start);
+    }
+
+    private void unRegisterNotNeededBookings(List<Booking> activeBookings) {
+        for (Booking activeBooking : activeBookings) {
+            if (datesToRemove.contains(activeBooking.getStartingDateTime())) {
+                log.info("Date: {}. Unregistering not needed booking {}",
+                        activeBooking.getStartingDateTime(), activeBooking);
+                unRegisterService.unRegister(activeBooking.getCancelBookingUrl());
+            }
+        }
     }
 
     private void logout() {
