@@ -40,7 +40,7 @@ public class RegisterService {
     private final TermsService termsService;
     private Set<LocalDateTime> dates = new HashSet<>();
     private List<LocalDate> datesToRemove = ImmutableList.of(
-            LocalDate.of(2021, 5, 19)
+
     );
 
     public RegisterService(
@@ -93,7 +93,8 @@ public class RegisterService {
 
     private void unRegisterNotNeededBookings(List<Booking> activeBookings) {
         for (Booking activeBooking : activeBookings) {
-            if (datesToRemove.contains(activeBooking.getStartingDateTime().toLocalDate())) {
+            if (datesToRemove.contains(activeBooking.getStartingDateTime().toLocalDate()) &&
+                    activeBooking.getStartingDateTime().getHour() <= 7) {
                 log.info("Date: {}. Unregistering not needed booking {}",
                         activeBooking.getStartingDateTime(), activeBooking);
                 unRegisterService.unRegister(activeBooking.getCancelBookingUrl());
