@@ -56,7 +56,11 @@ public class RegisterService {
         this.termsService = termsService;
         LocalDateTime now = LocalDateTime.now();
         for (int i = 1; i <= 6; i++) {
-            dates.add(LocalDateTime.of(now.plusDays(i).toLocalDate(), MIDNIGHT));
+            LocalDate localDate = now.plusDays(i).toLocalDate();
+            if (LocalDate.of(2021, 5, 23).equals(localDate)) {
+                continue;
+            }
+            dates.add(LocalDateTime.of(localDate, MIDNIGHT));
         }
         for (LocalDate localDate : datesToRemove) {
             dates.remove(LocalDateTime.of(localDate, MIDNIGHT));
