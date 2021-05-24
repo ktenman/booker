@@ -40,7 +40,12 @@ public class RegisterService {
     private final TermsService termsService;
     private Set<LocalDateTime> dates = new HashSet<>();
     private List<LocalDate> datesToRemove = ImmutableList.of(
-            LocalDate.of(2021, 5, 24)
+            LocalDate.of(2021, 5, 24),
+            LocalDate.of(2021, 5, 25),
+            LocalDate.of(2021, 5, 28),
+            LocalDate.of(2021, 5, 29),
+            LocalDate.of(2021, 5, 30),
+            LocalDate.of(2021, 5, 31)
     );
 
     public RegisterService(
