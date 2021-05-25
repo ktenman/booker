@@ -42,6 +42,8 @@ public class RegisterService {
     private List<LocalDate> cancelBookings = ImmutableList.of(
             LocalDate.of(2021, 5, 24),
             LocalDate.of(2021, 5, 25),
+            LocalDate.of(2021, 5, 26),
+            LocalDate.of(2021, 5, 27),
             LocalDate.of(2021, 5, 28),
             LocalDate.of(2021, 5, 29),
             LocalDate.of(2021, 5, 30),
