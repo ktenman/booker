@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -178,7 +179,7 @@ public class RegisterService {
                     } else if (alreadyRegisteredToDay(start, activeBookings)) {
                         log.info("Skipping. Already registered {}", findClosestBooking(start, activeBookings));
                         return false;
-                    } else if (LocalDateTime.now().isBefore(currentSlot.minusHours(8))) {
+                    } else if (Duration.between(LocalDateTime.now(), currentSlot).toHours() < 8) {
                         log.info("Skipping. Less than 8 hours");
                         return false;
                     } else {
