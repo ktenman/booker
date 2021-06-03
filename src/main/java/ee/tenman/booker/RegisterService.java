@@ -178,6 +178,9 @@ public class RegisterService {
                     } else if (alreadyRegisteredToDay(start, activeBookings)) {
                         log.info("Skipping. Already registered {}", findClosestBooking(start, activeBookings));
                         return false;
+                    } else if (LocalDateTime.now().isBefore(currentSlot.minusHours(8))) {
+                        log.info("Skipping. Less than 8 hours");
+                        return false;
                     } else {
                         log.info("Registering...");
                         e.click();
