@@ -63,7 +63,7 @@ public class RegisterService {
         this.selectionService = selectionService;
         this.termsService = termsService;
         LocalDateTime now = LocalDateTime.now();
-        for (int i = 0; i <= 6; i++) {
+        for (int i = 1; i <= 6; i++) {
             LocalDate localDate = now.plusDays(i).toLocalDate();
             if (LocalDate.of(2021, 5, 23).equals(localDate)) {
                 continue;
